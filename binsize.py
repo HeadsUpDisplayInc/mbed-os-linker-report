@@ -5,12 +5,13 @@ from elfsize import add_node, output_to_file, default_op, default_datafile, repo
 from collections import OrderedDict
 from os import path
 import sys
+import argparse, webbrowser
 
-def main(output):
+def main(output, input_stdin):
     root = OrderedDict({"name": "mbed", "children": []})
 
     # cycle through stdin
-    for line in sys.stdin:
+    for line in input_stdin:
         # pass through to stdout
         print(line.strip())
 
@@ -45,9 +46,11 @@ def main(output):
 
     output_to_file(output, root)
 
-if __name__ == '__main__':
-    import argparse, webbrowser
+def main_input_args(input_args, input_stdin=None):
 
+    if not input_stdin:
+        input_stdin = sys.stdin
+    
     parser = argparse.ArgumentParser(
         description='Analyse mbed compile output from stdin and generate a json data file for visualisation')
 
@@ -65,10 +68,10 @@ if __name__ == '__main__':
                         help = 'launch the pie chart visualisation in a browser')
 
     # get and validate arguments
-    args = parser.parse_args()
+    args = parser.parse_args(input_args)
 
     # parse input and write to output
-    main(args.output)
+    main(args.output, input_stdin)
 
     # close output file
     output_fn = path.abspath(args.output.name)
@@ -80,3 +83,10 @@ if __name__ == '__main__':
         uri = "file://" + path.join(repo_root, "index.html")
         print("[INFO] opening in browser", uri)
         webbrowser.open(uri, new=2)
+
+def entry_point():
+    main_input_args(sys.argv[1:], sys.stdin)
+    
+        
+if __name__ == '__main__':
+    main_input_args(sys.argv[1:], sys.stdin)

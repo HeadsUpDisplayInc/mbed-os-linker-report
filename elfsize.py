@@ -5,6 +5,8 @@ from subprocess import check_output
 from collections import OrderedDict
 from os import path
 import re, os, json
+import argparse, webbrowser
+import sys
 
 # arm-none-eabi-nm needs to be in the environment path
 nm = "arm-none-eabi-nm"
@@ -66,12 +68,8 @@ def main(binaries, output):
 
     output_to_file(output, root)
 
-if __name__ == '__main__':
-    import argparse, webbrowser
-
-    parser = argparse.ArgumentParser(
-        description='Analyse binary built by gcc and generate json containing binary size information')
-
+def main_input_args(input_args):
+    parser = argparse.ArgumentParser(description='Analyse binary built by gcc and generate json containing binary size information')
     def output_arg(s):
         if path.isdir(s):
             s = path.join(s, default_datafile)
@@ -103,3 +101,11 @@ if __name__ == '__main__':
         uri = "file://" + path.join(repo_root, "index.html")
         print("[INFO] opening in browser", uri)
         webbrowser.open(uri, new=2)
+    
+def entry_point():
+    main_input_args(sys.argv[1:])
+        
+if __name__ == '__main__':
+   main_input_args(sys.argv[1:])
+
+   
